@@ -1,5 +1,6 @@
 import flet
 from src.logger import ShipRadarLogger
+from gui.FilterWindow import FilterWindow
 
 
 # Main window, has a file picker, a button to open filters window and a go button which opens another window
@@ -7,6 +8,7 @@ class MainWindow(flet.Row):
     def __init__(self, page: flet.Page, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.logger = ShipRadarLogger("MainWindow")
+        self.logger.debug("Initializing MainWindow")
         self.page = page
 
         self.files = []
@@ -37,8 +39,9 @@ class MainWindow(flet.Row):
                                     leading=flet.Icon(flet.icons.FILTER_LIST_OUTLINED),
                                     title=flet.Text("Filters"),
                                     subtitle=flet.Text(
-                                        f"Selected filter {self.filter}" if self.filter else "Open filters window"),
-                                    on_click=self.open_filters_window
+                                        f"Selected filter {self.filter}" if self.filter else "Open filters window"
+                                    ),
+                                    on_click=lambda _: self.page.go("/filters")
                                 )
                             )
                         )
@@ -64,6 +67,7 @@ class MainWindow(flet.Row):
     def active_view(self, value: flet.Control):
         self._active_view = value
         self.update()
+        self.page.update()
 
     def file_picker_result(self, e: flet.FilePickerResultEvent):
         self.logger.debug(e.files)
@@ -71,15 +75,16 @@ class MainWindow(flet.Row):
         file = e.files[0] if e.files else None
         if file:
             self.files.append(file)
-        self.last_picked_file = self.files[-1].name
+
+        try:
+            self.last_picked_file = self.files[-1].name
+        except IndexError:
+            self.last_picked_file = None
         self.logger.info(self.last_picked_file)
         self.picker_text.value = f"Selected file: {self.last_picked_file}" if self.last_picked_file else \
                                  "Select a CSV file to open"
         self.page.update()
         self.controls_view.update()
-
-    def open_filters_window(self, e):
-        self.open_filters_window = None
 
     def open_canvas_window(self, e):
         self.open_canvas_window = None

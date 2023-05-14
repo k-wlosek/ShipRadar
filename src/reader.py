@@ -13,9 +13,9 @@ class ShipRadarFilter:
         self.filter = None
         self.type = type
         self.additional_info = args
-        self.parse_type()
+        self.__parse_type()
 
-    def parse_type(self):
+    def __parse_type(self):
         match self.type:
             case 'ship_name':
                 self.filter = self.additional_info[0]
@@ -96,3 +96,11 @@ class ShipRadarCSVReader:
             raise err.ShipRadarFilterError(f'No entries for this filter: {filter_obj.type}: {filter_obj.filter}')
 
         return collector
+
+    @staticmethod
+    def and_collectors(collectors: list):
+        """
+        Returns a list of a logical AND of collectors
+        :return: List of ship satifying all filters from individual collectors
+        """
+        return list(set.intersection(*map(set, collectors)))
