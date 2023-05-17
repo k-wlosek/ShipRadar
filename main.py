@@ -1,10 +1,11 @@
 from gui.MainWindow import MainWindow
 from gui.FilterWindow import FilterWindow
-from gui.Filters import NameFilter
+from gui.Filters import NameFilter, DateTimeFilter, LocationFilter
 from flet import app
 import flet
 import logging
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+
 
 class ShipRadarApp(flet.UserControl):
     def __init__(self, page: flet.Page):
@@ -61,6 +62,28 @@ class ShipRadarApp(flet.UserControl):
             self.page.views.append(
                 flet.View(
                     "/filters/shipname",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/shiptime"):
+            self.filter_name = DateTimeFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/shiptime",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/shiplocation"):
+            self.filter_name = LocationFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/shiplocation",
                     [flet.IconButton(
                         icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
