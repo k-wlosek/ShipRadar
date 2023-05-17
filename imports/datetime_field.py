@@ -1,3 +1,8 @@
+"""
+https://github.com/flet-dev/examples/tree/main/python/community/datetime_field
+Edited to work with ShipRadar
+"""
+
 import calendar
 import datetime as dt
 from typing import Any, Callable, Iterable, Optional, Union
@@ -21,8 +26,8 @@ from flet_core.types import (
 class DatetimeField(ft.Row):
     date_controls_dict = dict()
     months_ = list(calendar.month_name)[1:]
-    dt_format = "%Y,%B,%d,%H,%M"
-    options = ["_years", "_months", "_days", "_hours", "_minutes"]
+    dt_format = "%Y,%B,%d,%H,%M,%S"
+    options = ["_years", "_months", "_days", "_hours", "_minutes", "_seconds"]
 
     def __init__(
         self,
@@ -111,7 +116,7 @@ class DatetimeField(ft.Row):
 
     def _years(self) -> None:
         year = dt.date.today().year
-        years = list(map(lambda x: str(x), range(year, year - 10, -1)))
+        years = list(map(lambda x: str(x), range(year, year - 15, -1)))
         self._dropdown(
             "years", years, on_change=self._on_change, width=110, hint_text="Year"
         )
@@ -153,6 +158,16 @@ class DatetimeField(ft.Row):
             on_change=self._on_change_wrapper,
             width=110,
             hint_text="Minute",
+        )
+
+    def _seconds(self) -> None:
+        seconds = range(60)
+        self._dropdown(
+            "seconds",
+            seconds,
+            on_change=self._on_change_wrapper,
+            width=110,
+            hint_text="Seconds",
         )
 
     def _on_change(self, e) -> None:

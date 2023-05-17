@@ -1,6 +1,7 @@
 from gui.MainWindow import MainWindow
 from gui.FilterWindow import FilterWindow
-from gui.Filters import NameFilter, DateTimeFilter, LocationFilter
+from gui.Filters import NameFilter, DateTimeFilter, LocationFilter, ShipNoFilter, ShipTypeFilter, MoveStatusFilter, \
+    HeadingFilter, DraughtFilter, SpeedFilter, DestinationFilter, ETAFilter
 from flet import app
 import flet
 import logging
@@ -54,7 +55,8 @@ class ShipRadarApp(flet.UserControl):
                     [flet.IconButton(
                         icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/")
                     ),
-                     self.filter]
+                     self.filter],
+                    scroll=flet.ScrollMode.ADAPTIVE
                 )
             )
         if troute.match("/filters/shipname"):
@@ -90,6 +92,94 @@ class ShipRadarApp(flet.UserControl):
                      self.filter_name]
                 )
             )
+        if troute.match("/filters/shipnumber"):
+            self.filter_name = ShipNoFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/shipnumber",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/shiptype"):
+            self.filter_name = ShipTypeFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/shiptype",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/shipmovestatus"):
+            self.filter_name = MoveStatusFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/shipmovestatus",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/heading"):
+            self.filter_name = HeadingFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/heading",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/draught"):
+            self.filter_name = DraughtFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/draught",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/speed"):
+            self.filter_name = SpeedFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/speed",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/destination"):
+            self.filter_name = DestinationFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/destination",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
+        if troute.match("/filters/eta"):
+            self.filter_name = ETAFilter(self.page)
+            self.page.views.append(
+                flet.View(
+                    "/filters/eta",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                    ),
+                     self.filter_name]
+                )
+            )
 
         self.page.update()
 
@@ -109,4 +199,4 @@ def main(page):
     app.initialize()
 
 # Run the app
-app(target=main)
+app(target=main)#, view=flet.WEB_BROWSER)
