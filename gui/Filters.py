@@ -58,14 +58,14 @@ class DateTimeFilter(flet.UserControl):
             # If all values in list are str then it's a problem with the date
             self.logger.debug("Problem with from date, probably invalid date")
             if all(isinstance(x, str) for x in self.from_datetime_field.value):
-                self.page.snack_bar = flet.SnackBar(content=flet.Text("Invalid from date"))
+                self.page.snack_bar = flet.SnackBar(content=flet.Text("Invalid 1st date"))
                 self.page.snack_bar.open = True
                 self.page.update()
                 return None
         if isinstance(self.till_datetime_field.value, list):
             self.logger.debug("Problem with till date, probably invalid date")
             if all(isinstance(x, str) for x in self.till_datetime_field.value):
-                self.page.snack_bar = flet.SnackBar(content=flet.Text("Invalid till date"))
+                self.page.snack_bar = flet.SnackBar(content=flet.Text("Invalid 2nd date"))
                 self.page.snack_bar.open = True
                 self.page.update()
                 return None

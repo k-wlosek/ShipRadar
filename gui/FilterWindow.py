@@ -91,7 +91,7 @@ class FilterWindow(flet.UserControl):
                 flet.Card(
                     content=flet.Container(
                         content=flet.ListTile(
-                            leading=flet.Icon(flet.icons.RULE_ROUNDED),
+                            leading=flet.Icon(flet.icons.ANCHOR_ROUNDED),
                             title=flet.Text("Draught"),
                             subtitle=flet.Text(
                                 f"Filter by ship's draught"),
@@ -124,7 +124,7 @@ class FilterWindow(flet.UserControl):
                 flet.Card(
                     content=flet.Container(
                         content=flet.ListTile(
-                            leading=flet.Icon(flet.icons.PUNCH_CLOCK_ROUNDED),
+                            leading=flet.Icon(flet.icons.WATCH_ROUNDED),
                             title=flet.Text("ETA"),
                             subtitle=flet.Text(
                                 f"Filter by ship's ETA"),
