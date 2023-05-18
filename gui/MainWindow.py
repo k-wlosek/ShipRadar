@@ -1,6 +1,6 @@
 import flet
 from src.logger import ShipRadarLogger
-from gui.FilterWindow import FilterWindow
+from src.reader import ShipRadarCSVReader
 
 
 # Main window, has a file picker, a button to open filters window and a go button which opens another window
@@ -87,4 +87,22 @@ class MainWindow(flet.Row):
         self.controls_view.update()
 
     def open_canvas_window(self, e):
+        # TODO: verify filters, datafile and all
+        self.logger.debug("Opening canvas window")
+
+        data_file = ShipRadarCSVReader(self.last_picked_file)
+        filter_types: list[str] = ['name_filter', 'datetime_filter', 'location_filter', 'ship_no',
+                                   'ship_type_filter', 'move_status_filter', 'heading_filter', 'draught_filter',
+                                   'speed_filter', 'destination_filter', 'eta_filter']
+        data_list: list[list[dict[str, str]]] = []
+        for filter_type in filter_types:
+            filter = self.page.session.get(filter_type)
+            if filter:
+                data_list.append(data_file.parse(filter))
+        data = ShipRadarCSVReader.and_collectors(data_list)
+
+        print(len(data))
+        self.page.session.set("filter", data)
+
+        self.page.go("/canvas")
         self.open_canvas_window = None

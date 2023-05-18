@@ -1,3 +1,4 @@
+from gui.CanvasWindow import Plot
 from gui.MainWindow import MainWindow
 from gui.FilterWindow import FilterWindow
 from gui.Filters import NameFilter, DateTimeFilter, LocationFilter, ShipNoFilter, ShipTypeFilter, MoveStatusFilter, \
@@ -5,7 +6,9 @@ from gui.Filters import NameFilter, DateTimeFilter, LocationFilter, ShipNoFilter
 from flet import app
 import flet
 import logging
+import logging_tree
 # logging.basicConfig(level=logging.DEBUG)
+import pandas
 
 
 class ShipRadarApp(flet.UserControl):
@@ -180,7 +183,18 @@ class ShipRadarApp(flet.UserControl):
                      self.filter_name]
                 )
             )
-
+        if troute.match("/canvas"):
+            self.filter_name = Plot(self.page, self.page.session.get('filter'), "Plot")
+            self.page.views.append(
+                flet.View(
+                    "/canvas",
+                    [flet.IconButton(
+                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/")
+                    ),
+                     self.filter_name]
+                )
+            )
+        self.page.session.set('filter', None)
         self.page.update()
 
     def view_pop(self, e):
@@ -198,5 +212,6 @@ def main(page):
     page.go(page.route)
     app.initialize()
 
+# logging_tree.printout()
 # Run the app
 app(target=main)#, view=flet.WEB_BROWSER)

@@ -206,10 +206,14 @@ class ShipRadarCSVReader:
         return collector
 
     @staticmethod
-    def and_collectors(collectors: list) -> list[dict]:
+    def and_collectors(collectors: list[list[dict[str, str]]]) -> list[dict[str, str]]:
         """
         Returns a list of a logical AND of collectors
         :return: List of ship satisfying all filters from individual collectors
         :rtype: list
         """
-        return list(set.intersection(*map(set, collectors)))
+        result = []
+        for ship in collectors[0]:
+            if all(ship in collector for collector in collectors[1:]):
+                result.append(ship)
+        return result
