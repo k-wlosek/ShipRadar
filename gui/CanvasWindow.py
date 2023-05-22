@@ -1,96 +1,104 @@
-import datetime
-
+import itertools
 import flet
 from flet.plotly_chart import PlotlyChart
 import pandas as pd
 import plotly.graph_objects as go
-
+import distinctipy
 
 
 class Plot(flet.UserControl):
-    def __init__(self, page: flet.Page, data: list[dict], title: str, show_lines: bool = False):
+    def __init__(self, page: flet.Page, data: list[list[dict]], title: str):
         super().__init__()
         self.page = page
-        self.data = pd.DataFrame(data)
+        self.page.on_resize = self.on_resize
+        self.data = data
         self.title = title
-        self.show_lines = show_lines
+        self.show_lines = True
+
+        self.colors: list[tuple[float, float, float]] = distinctipy.get_colors(len(self.data))
         self.page.update()
 
-    def build(self):
-        # TODO Too big, don't need the whole Earth map, just the part where points are
+    def on_resize(self, e):
+        self.__chart.figure = self.__fig
+        self.page.update()
+        self.layout.update()
 
-        # Sort the data based on MovementDateTime
-        sorted_data: pd.DataFrame = self.data.sort_values(by='MovementDateTime')
+    def build(self):
+        self.__initialize_chart()
+
+        self.__chart = PlotlyChart(self.__fig)
+        self.layout = flet.Column(
+            [
+                flet.Container(content=self.__chart, height=self.page.height*0.8),
+                flet.Row(
+                    [
+                        flet.ElevatedButton(text="Open as interactive", icon=flet.icons.OPEN_IN_NEW, on_click=self.__show_fig),
+                        flet.ElevatedButton(text="Toggle lines", icon=flet.icons.LINE_STYLE, on_click=self.__toggle_lines)
+                    ]
+                )
+            ]
+        )
+
+        return self.layout
+
+    def __initialize_chart(self):
+
+        all_data_list: list[dict] = list(itertools.chain(*self.data))
+
+        # Create a dataframe of all the data to determine the center coordinates and zoom level
+        all_data: pd.DataFrame = pd.DataFrame(all_data_list)
+        all_data.sort_values(by='MovementDateTime', key=lambda x: pd.to_datetime(x), inplace=True)
 
         # Convert latitude and longitude values to floats
-        latitudes: list[float] = sorted_data['Latitude'].astype(float)
-        longitudes: list[float] = sorted_data['Longitude'].astype(float)
+        latitudes: list[float] = all_data['Latitude'].astype(float)
+        longitudes: list[float] = all_data['Longitude'].astype(float)
 
         # Calculate the center coordinates based on the latitude and longitude values of the points
         center_lat: float = (max(latitudes) + min(latitudes)) / 2
         center_lon: float = (max(longitudes) + min(longitudes)) / 2
 
-        # Set the zoom level based on the range of latitude and longitude values
-        lat_range: float = max(latitudes) - min(latitudes)
-        lon_range: float = max(longitudes) - min(longitudes)
-        zoom: float = max(lat_range, lon_range) * 144  # Adjust the zoom factor as needed
+        # Create the figure
+        self.__fig: go.Figure = go.Figure()
 
-        # Convert MovementDateTime to datetime objects
-        movement_datetimes: list[datetime.datetime] = pd.to_datetime(sorted_data['MovementDateTime'])
+        # Add the scattergeo trace for points
+        for ship, color in zip(self.data, self.colors):
+            data_frame: pd.DataFrame = pd.DataFrame(ship)
 
-        hovertext: list[str] = [sorted_data['ShipName'], sorted_data['MovementDateTime'],
-                     sorted_data['Destination']]
+            # Sort the data based on MovementDateTime
+            sorted_data: pd.DataFrame = data_frame.sort_values(by='MovementDateTime', key=lambda x: pd.to_datetime(x))
+            # Create a text column for the hovertext
+            sorted_data['text']: str = sorted_data['ShipName'] + '<br>' + sorted_data['MovementDateTime']
 
-        # Create the scattergeo trace for points
-        scatter_points = go.Scattergeo(
-            lat=latitudes,
-            lon=longitudes,
-            customdata=hovertext,
-            mode='markers',
-            marker=dict(
-                color='blue',
-                size=5,
+            # Create the scattergeo trace for points
+            scatter_points = go.Scattergeo(
+                lat=sorted_data['Latitude'].astype(float),
+                lon=sorted_data['Longitude'].astype(float),
+                hovertext=sorted_data['text'],
+                mode='lines+markers' if self.show_lines else 'markers',
+                marker=dict(
+                    color=f'rgb({color[0]*255}, {color[1]*255}, {color[2]*255})',
+                    size=5
+                ),
                 line=dict(
-                    width=0.5,
-                    color='black'
-                )
-            ),
-            showlegend=False,  # Remove the legend
-            hovertemplate="<br>".join([
-                "Ship Name: %{customdata[0]}",
-                "MovementDateTime: %{customdata[1]}",
-                "Destination: %{customdata[2]}"
-            ])
-        )
-
-        # Create the scattergeo trace for lines if show_lines is True
-        scatter_lines = None
-        if self.show_lines:
-            # Create a list of line coordinates by combining adjacent points
-            line_coordinates = [(lon1, lat1, lon2, lat2) for (lat1, lon1), (lat2, lon2) in
-                                zip(zip(latitudes[:-1], longitudes[:-1]), zip(latitudes[1:], longitudes[1:]))]
-
-            scatter_lines = go.Scattergeo(
-                lat=[lat1 for lon1, lat1, lon2, lat2 in line_coordinates],
-                lon=[lon1 for lon1, lat1, lon2, lat2 in line_coordinates],
-                mode='lines',
-                line=dict(color='blue', width=2),
-                showlegend=False  # Remove the legend
+                    width=1,
+                    color=f'rgb({color[0]*255}, {color[1]*255}, {color[2]*255})'
+                ),
+                showlegend=True,
+                name=sorted_data['ShipName'][0]
             )
+            self.__fig.add_trace(scatter_points)
 
-        # Create the figure and add the traces
-        fig = go.Figure(data=[scatter_points, scatter_lines] if self.show_lines else [scatter_points])
-
-        fig.update_geos(
+        # Adjust the center and zoom level of the map
+        self.__fig.update_geos(
             center=dict(lon=center_lon, lat=center_lat),
-            projection_scale=zoom
+            fitbounds='locations'
         )
 
-        fig.update_layout(
-            title='Ships',
+        self.__fig.update_layout(
+            title='Selected ship movements',
             title_x=0.5,
-            margin=dict(r=0, l=0, t=50, b=0),  # Adjust the margins
-            hovermode='closest',  # Set hover mode to show closest point information
+            margin=dict(r=0, l=0, t=30, b=0),  # Adjust the margins
+            hovermode='closest',  # Set hover mode to show the closest point information
             geo=dict(
                 showland=True,
                 landcolor='rgb(243, 243, 243)',
@@ -101,16 +109,26 @@ class Plot(flet.UserControl):
                 showcoastlines=True,
                 coastlinecolor='rgb(150, 150, 150)',
                 showframe=False,
-                projection_type='equirectangular'
+                projection_type='natural earth'
             )
         )
 
+    def __toggle_lines(self, e) -> None:
+        """
+        Toggle the lines on the chart
+        :return:
+        """
+        self.show_lines = False if self.show_lines else True  # Toggle the show_lines variable
+        self.__initialize_chart()
 
-        fig.show()
+        # Update the chart and GUI
+        self.__chart.figure = self.__fig
+        self.page.update()
+        self.layout.update()
 
-        return PlotlyChart(
-            fig
-        )
-
-
-
+    def __show_fig(self, e):
+        """
+        Show the figure in a new window
+        :return:
+        """
+        self.__fig.show()

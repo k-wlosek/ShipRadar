@@ -15,6 +15,9 @@
 #### calculation
 - [ ] calculation class with methods for collecting similar entries by name and points interpolation
 
+#### gui
+- [ ] delete button for already selected filters and text to indicate what is selected
+
 GPT's implementation of collector splitter for calculation.py
 ```python
 data = [{"no": 1, "name": "John"}, {"no": 1, "name": "Alice"}, {"no": 2, "name": "Bob"}, {"no": 2, "name": "Eve"}]

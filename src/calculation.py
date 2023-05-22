@@ -7,19 +7,22 @@ class Calculation:
     @staticmethod
     def divide_collectors(collector: list[dict]) -> list[list[dict]]:
         """
-        Divide collector into multiple collectors, by LRIMO number
+        Divide collector into multiple collectors, by ship name
         :param collector: collector, returned by reader.ShipRadarCSVReader.and_collector(collectors)
-        :return: list of collectors, each collector contains only ships with same LRIMO number
+        :return: list of collectors, each collector contains only ships with same name
         """
         divided_collectors = []
-        # Sort by LRIMO number, so ships with same LRIMO number are next to each other
-        collector.sort(key=lambda ship: ship['LRIMOShipNo'])
-        # Divide collector into multiple collectors, by LRIMO number
-        for entry in collector:
-            if divided_collectors and divided_collectors[-1][0]['LRIMOShipNo'] == entry['LRIMOShipNo']:
-                divided_collectors[-1].append(entry)
-            else:
-                divided_collectors.append([entry])
+        for item in collector:
+            no_value = item["ShipName"]
+            found = False
+            for sublist in divided_collectors:
+                if sublist[0]["ShipName"] == no_value:
+                    sublist.append(item)
+                    found = True
+                    break
+            if not found:
+                divided_collectors.append([item])
+
         return divided_collectors
 
     @staticmethod  # TODO: Ensure that this works, good luck
