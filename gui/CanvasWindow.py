@@ -13,7 +13,9 @@ class Plot(flet.UserControl):
         self.page.on_resize = self.on_resize
         self.data = data
         self.title = title
+
         self.show_lines = True
+        self.__block = False
 
         self.colors: list[tuple[float, float, float]] = distinctipy.get_colors(len(self.data))
         self.page.update()
@@ -42,6 +44,7 @@ class Plot(flet.UserControl):
         return self.layout
 
     def __initialize_chart(self):
+        self.__block = True
 
         all_data_list: list[dict] = list(itertools.chain(*self.data))
 
@@ -67,7 +70,16 @@ class Plot(flet.UserControl):
             # Sort the data based on MovementDateTime
             sorted_data: pd.DataFrame = data_frame.sort_values(by='MovementDateTime', key=lambda x: pd.to_datetime(x))
             # Create a text column for the hovertext
-            sorted_data['text']: str = sorted_data['ShipName'] + '<br>' + sorted_data['MovementDateTime']
+            sorted_data['text']: str = f"""<b>Ship name:</b> {sorted_data['ShipName']}<br>
+                                           <b>LRIMO number:</b> {sorted_data['LRIMOShipNo']}<br>
+                                           <b>Ship type:</b> {sorted_data['ShipType']}<br>
+                                           <b>Movement date:</b> {sorted_data['MovementDateTime']}<br>
+                                           <b>Move status:</b> {sorted_data['MoveStatus']}<br>
+                                           <b>Destination:</b> {sorted_data['Destination']}<br>
+                                           <b>ETA:</b> {sorted_data['ETA']}<br>
+                                           <b>Heading:</b> {sorted_data['Heading']}<br>
+                                           <b>Speed:</b> {sorted_data['Speed']}<br>
+                                           <b>Draught:</b> {sorted_data['Draught']}<br>"""
 
             # Create the scattergeo trace for points
             scatter_points = go.Scattergeo(
@@ -113,11 +125,18 @@ class Plot(flet.UserControl):
             )
         )
 
+        self.__block = False
+
     def __toggle_lines(self, e) -> None:
         """
         Toggle the lines on the chart
         :return:
         """
+        if self.__block:
+            self.page.snack_bar = flet.SnackBar(content=flet.Text("Please wait, chart is being updated"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return None
         self.show_lines = False if self.show_lines else True  # Toggle the show_lines variable
         self.__initialize_chart()
 

@@ -217,3 +217,28 @@ class ShipRadarCSVReader:
             if all(ship in collector for collector in collectors[1:]):
                 result.append(ship)
         return result
+
+    @staticmethod
+    def divide_collectors(collector: list[dict]) -> list[list[dict]]:
+        """
+        Divide collector into multiple collectors, by ship name
+        :param collector: collector, returned by reader.ShipRadarCSVReader.and_collector(collectors)
+        :return: list of collectors, each collector contains only ships with same name
+        """
+        divided_collectors = []
+        for item in collector:
+            no_value = item["ShipName"]
+            found = False
+            for sublist in divided_collectors:
+                if sublist[0]["ShipName"] == no_value:
+                    sublist.append(item)
+                    found = True
+                    break
+            if not found:
+                divided_collectors.append([item])
+
+        return divided_collectors
+
+    @staticmethod
+    def verify(filepath: str) -> bool:
+        ...

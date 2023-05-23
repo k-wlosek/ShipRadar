@@ -81,7 +81,7 @@ class MainWindow(flet.Row):
         except IndexError:
             self.last_picked_file = None
         self.logger.info(self.last_picked_file)
-        self.picker_text.value = f"Selected file: {self.last_picked_file}" if self.last_picked_file else \
+        self.picker_text.value = f"Selected file: {self.last_picked_file.name}" if self.last_picked_file else \
                                  "Select a CSV file to open"
         self.page.update()
         self.controls_view.update()
@@ -90,7 +90,7 @@ class MainWindow(flet.Row):
         # TODO: verify filters, datafile and all
         self.logger.debug("Opening canvas window")
 
-        data_file = ShipRadarCSVReader(self.last_picked_file)
+        data_file = ShipRadarCSVReader(self.last_picked_file.path)
         filter_types: list[str] = ['name_filter', 'datetime_filter', 'location_filter', 'ship_no',
                                    'ship_type_filter', 'move_status_filter', 'heading_filter', 'draught_filter',
                                    'speed_filter', 'destination_filter', 'eta_filter']
@@ -99,10 +99,9 @@ class MainWindow(flet.Row):
             filter = self.page.session.get(filter_type)
             if filter:
                 data_list.append(data_file.parse(filter))
-        data = ShipRadarCSVReader.and_collectors(data_list)
+        data: list[dict] = ShipRadarCSVReader.and_collectors(data_list)
+        data_list: list[list[dict]] = ShipRadarCSVReader.divide_collectors(data)
 
-        print(len(data))
-        self.page.session.set("filter", data)
+        self.page.session.set("filter", data_list)
 
         self.page.go("/canvas")
-        self.open_canvas_window = None

@@ -8,6 +8,12 @@ class FilterWindow(flet.UserControl):
         self.page.title = "Filters"
         self.page.update()
 
+        self.none_selected = flet.Row(
+                            [
+                                flet.Icon(flet.icons.NOT_INTERESTED, tooltip="Not selected")
+                            ], alignment=flet.MainAxisAlignment.CENTER
+        )
+
     def build(self):
         self.layout = flet.Column(
             [
@@ -28,7 +34,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('name_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('name_filter') else flet.Text("No ship name filter selected")
+                                ) if self.page.session.get('name_filter') else self.none_selected
                             ]
                         )
                     )
@@ -51,7 +57,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('datetime_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('datetime_filter') else flet.Text("No datetime filter selected")
+                                ) if self.page.session.get('datetime_filter') else self.none_selected
                             ]
                         )
                     )
@@ -74,7 +80,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('location_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('location_filter') else flet.Text("No location filter selected")
+                                ) if self.page.session.get('location_filter') else self.none_selected
                             ]
                         )
                     )
@@ -97,7 +103,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('ship_no_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('ship_no_filter') else flet.Text("No ship number filter selected")
+                                ) if self.page.session.get('ship_no_filter') else self.none_selected
                             ]
                         )
                     )
@@ -120,7 +126,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('ship_type_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('ship_type_filter') else flet.Text("No type filter selected")
+                                ) if self.page.session.get('ship_type_filter') else self.none_selected
                             ]
                         )
                     )
@@ -143,7 +149,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('move_status_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('move_status_filter') else flet.Text("No movement status filter selected")
+                                ) if self.page.session.get('move_status_filter') else self.none_selected
                             ]
                         )
                     )
@@ -166,7 +172,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=self.reset_filters('heading_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('heading_filter') else flet.Text("No heading filter selected")
+                                ) if self.page.session.get('heading_filter') else self.none_selected
                             ]
                         )
                     )
@@ -189,7 +195,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('draught_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('draught_filter') else flet.Text("No draught filter selected")
+                                ) if self.page.session.get('draught_filter') else self.none_selected
                             ]
                         )
                     )
@@ -212,7 +218,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('speed_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('speed_filter') else flet.Text("No speed filter selected")
+                                ) if self.page.session.get('speed_filter') else self.none_selected
                             ]
                         )
                     )
@@ -235,7 +241,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('destination_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('destination_filter') else flet.Text("No destination filter selected")
+                                ) if self.page.session.get('destination_filter') else self.none_selected
                             ]
                         )
                     )
@@ -258,7 +264,7 @@ class FilterWindow(flet.UserControl):
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('eta_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
-                                ) if self.page.session.get('eta_filter') else flet.Text("No ETA filter selected")
+                                ) if self.page.session.get('eta_filter') else self.none_selected
                             ]
                         )
                     )
@@ -271,3 +277,6 @@ class FilterWindow(flet.UserControl):
         self.page.session.set(filter_name, None)
         self.page.update()
         self.layout.update()
+
+        self.page.go("/")
+        self.page.go("/filters")  # I might not like this, but it works
