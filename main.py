@@ -56,7 +56,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/")
+                        icon=flet.icons.HOME, tooltip="Go to main screen", on_click=lambda _: self.page.go("/")
                     ),
                      self.filter],
                     scroll=flet.ScrollMode.ADAPTIVE
@@ -68,7 +68,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shipname",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -79,7 +79,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shiptime",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -90,7 +90,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shiplocation",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -101,7 +101,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shipnumber",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -112,7 +112,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shiptype",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -123,7 +123,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/shipmovestatus",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -134,7 +134,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/heading",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -145,7 +145,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/draught",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -156,7 +156,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/speed",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -167,7 +167,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/destination",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -178,7 +178,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/filters/eta",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
+                        icon=flet.icons.ARROW_BACK, tooltip="Go back", on_click=lambda _: self.page.go("/filters")
                     ),
                      self.filter_name]
                 )
@@ -189,7 +189,7 @@ class ShipRadarApp(flet.UserControl):
                 flet.View(
                     "/canvas",
                     [flet.IconButton(
-                        icon=flet.icons.HOME, tooltip="Go back", on_click=lambda _: self.page.go("/")
+                        icon=flet.icons.HOME, tooltip="Go to main screen", on_click=lambda _: self.page.go("/")
                     ),
                      self.filter_name]
                 )

@@ -11,11 +11,15 @@ class ShipRadarFilter:
     def __init__(self, type: str, *args):
         self.logger = logger.ShipRadarLogger("ShipRadarFilterLogger")
         self.filter = None
-        self.type = type
-        self.additional_info = args
+        self.type: str = type
+        self.additional_info: tuple = args
         self.__parse_type()
 
-    def __parse_type(self):
+    def __parse_type(self) -> None:
+        """
+        Parses the type of the filter and sets the filter accordingly.
+        :return: None
+        """
         match self.type:
             case 'ship_no':
                 self.filter: int = self.additional_info[0]
@@ -69,6 +73,11 @@ class ShipRadarCSVReader:
         self.file = file
 
     def parse(self, filter_obj: ShipRadarFilter):
+        """
+        Parses CSV file with given filter
+        :param filter_obj: ShipRadarFilter object
+        :return: collector: list of dicts satisfying filter
+        """
         self.logger.debug(f"Parsing CSV file with filter {filter_obj} started")
         collector = []
         if (filter_obj.type is None) or (filter_obj.filter is None):
@@ -212,11 +221,14 @@ class ShipRadarCSVReader:
         :return: List of ship satisfying all filters from individual collectors
         :rtype: list
         """
-        result = []
-        for ship in collectors[0]:
-            if all(ship in collector for collector in collectors[1:]):
-                result.append(ship)
-        return result
+        if not collectors:
+            return []
+
+        result = set(tuple(ship.items()) for ship in collectors[0])
+        for collector in collectors[1:]:
+            result = result.intersection(set(tuple(ship.items()) for ship in collector))
+
+        return [dict(items) for items in result]
 
     @staticmethod
     def divide_collectors(collector: list[dict]) -> list[list[dict]]:
@@ -240,5 +252,11 @@ class ShipRadarCSVReader:
         return divided_collectors
 
     @staticmethod
-    def verify(filepath: str) -> bool:
-        ...
+    def verify_headers(filepath: str) -> bool:
+        with open(filepath) as file:
+            reader = csv.reader(file, delimiter=";")
+            header = next(reader)
+            if set(header) != {"LRIMOShipNo", "ShipName", "ShipType", "MovementDateTime", "Latitude", "Longitude",
+                               "MoveStatus", "Heading", "Draught", "Speed", "Destination", "ETA"}:
+                return False
+        return True

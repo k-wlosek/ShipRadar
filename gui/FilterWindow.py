@@ -53,7 +53,8 @@ class FilterWindow(flet.UserControl):
                                 flet.Row(
                                     [
                                         flet.Text(
-                                            f"Selected datetime: {self.page.session.get('datetime_filter').filter}"),
+                                            f"Selected datetime: {self.page.session.get('datetime_filter').filter[0]}\n"
+                                            f"{self.page.session.get('datetime_filter').filter[1]}"),
                                         flet.IconButton(icon=flet.icons.DELETE,  icon_color="pink600",
                                                         on_click=lambda _: self.reset_filters('datetime_filter'))
                                     ], alignment=flet.MainAxisAlignment.END
