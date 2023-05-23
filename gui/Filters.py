@@ -26,7 +26,7 @@ class NameFilter(flet.UserControl):
 
     def submit(self, e):
         self.logger.debug(self.text_field.value)
-        self.filter = ShipRadarFilter('ship_name', self.text_field.value)
+        self.filter: ShipRadarFilter = ShipRadarFilter('ship_name', self.text_field.value)
         self.page.session.set('name_filter', self.filter)
         self.page.go("/filters")
 
@@ -235,6 +235,13 @@ class HeadingFilter(flet.UserControl):
 
     def submit(self, e):
         self.logger.debug(f"{self.text_field.value=}")
+        try:
+            self.text_field.value = int(self.text_field.value)
+        except ValueError:
+            self.page.snack_bar = flet.SnackBar(content=flet.Text("Invalid heading"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return None
         self.filter = ShipRadarFilter('heading', self.text_field.value)
         self.page.session.set('heading_filter', self.filter)
         self.page.go("/filters")
