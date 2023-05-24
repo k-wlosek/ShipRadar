@@ -16,7 +16,14 @@
 - [ ] calculation class with methods for collecting similar entries by name and points interpolation
 
 #### gui
-- [ ] delete button for already selected filters and text to indicate what is selected
+- [x] delete button for already selected filters and text to indicate what is selected
+- [ ] improve readability of the gui
+
+#### tests
+- [ ] add missing tests for reader
+
+#### logger
+- [ ] improve logging
 
 GPT's implementation of collector splitter for calculation.py
 ```python
