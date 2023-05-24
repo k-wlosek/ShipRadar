@@ -1,0 +1,8 @@
+beartype==0.14.0
+distinctipy==1.2.2
+flet==0.7.1
+kaleido==0.2.1
+numpy==1.24.3
+pandas==2.0.1
+plotly==5.14.1
+scipy==1.10.1
