@@ -1,5 +1,4 @@
 import flet
-
 import src.err
 from src.logger import ShipRadarLogger
 from src.reader import ShipRadarCSVReader
@@ -15,9 +14,9 @@ class MainWindow(flet.Row):
 
         self.files = []
         self.last_picked_file = None
-        pick_files_dialog = flet.FilePicker(on_result=self.file_picker_result)
-        self.page.overlay.append(pick_files_dialog)
-        self.picker_text = flet.Text(f"Select a CSV file to open")
+        self.__pick_files_dialog = flet.FilePicker(on_result=self.file_picker_result)
+        self.page.overlay.append(self.__pick_files_dialog)
+        self.__picker_text = flet.Text(f"Select a CSV file to open")
 
         self.filter = None
 
@@ -30,8 +29,8 @@ class MainWindow(flet.Row):
                                 content=flet.ListTile(
                                     leading=flet.Icon(flet.icons.ATTACH_FILE_OUTLINED),
                                     title=flet.Text("Select data file"),
-                                    subtitle=self.picker_text,
-                                    on_click=lambda _: pick_files_dialog.pick_files(allowed_extensions=["csv"]),
+                                    subtitle=self.__picker_text,
+                                    on_click=lambda _: self.__pick_files_dialog.pick_files(allowed_extensions=["csv"]),
                                 )
                             ),
                         ),
@@ -75,6 +74,7 @@ class MainWindow(flet.Row):
         self.logger.debug(e.files)
 
         file = e.files[0] if e.files else None
+
         if file:
             self.files.append(file)
 
@@ -83,15 +83,31 @@ class MainWindow(flet.Row):
         except IndexError:
             self.last_picked_file = None
         self.logger.info(self.last_picked_file)
-        self.picker_text.value = f"Selected file: {self.last_picked_file.name}" if self.last_picked_file else \
-                                 "Select a CSV file to open"
+        self.__picker_text.value = f"Selected file: {self.last_picked_file.name}" if self.last_picked_file else \
+            "Select a CSV file to open"
         self.page.update()
         self.controls_view.update()
 
     def open_canvas_window(self, e) -> None:
-        # TODO: verify filters, datafile and all
-        self.logger.debug("Opening canvas window")
+        # If app runs in browser, upload file
+        if self.page.web:
+            self.logger.debug("Running in browser")
+            # Check extension
+            self.logger.debug("Checking file extension")
+            if not self.last_picked_file.name.endswith("csv"):
+                self.logger.error("File is not CSV")
+                self.page.snack_bar = flet.SnackBar(content=flet.Text("Not a CSV file!"))
+                self.page.snack_bar.open = True
+                self.page.update()
+                return
+            self.logger.debug("Uploading file")
+            self.__pick_files_dialog.upload([flet.FilePickerUploadFile(
+                self.last_picked_file.name,
+                upload_url=self.page.get_upload_url(self.last_picked_file.name, 120)  # 2 minutes should be enough
+            )])
+            self.last_picked_file.path = f"uploads/{self.last_picked_file.name}"
 
+        self.logger.debug("Opening canvas window")
         try:
             data_file = ShipRadarCSVReader(self.last_picked_file.path)
         except AttributeError:
