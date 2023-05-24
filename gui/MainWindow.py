@@ -52,7 +52,7 @@ class MainWindow(flet.Row):
                 flet.Row(
                     [
                         flet.ElevatedButton(
-                            text="Go", on_click=self.open_canvas_window
+                            text="Go", on_click=self.open_plot_window
                         )
                     ]
                 )
@@ -88,7 +88,7 @@ class MainWindow(flet.Row):
         self.page.update()
         self.controls_view.update()
 
-    def open_canvas_window(self, e) -> None:
+    def open_plot_window(self, e) -> None:
         # If app runs in browser, upload file
         if self.page.web:
             self.logger.debug("Running in browser")
@@ -107,7 +107,7 @@ class MainWindow(flet.Row):
             )])
             self.last_picked_file.path = f"uploads/{self.last_picked_file.name}"
 
-        self.logger.debug("Opening canvas window")
+        self.logger.debug("Opening plot window")
         try:
             data_file = ShipRadarCSVReader(self.last_picked_file.path)
         except AttributeError:
@@ -156,4 +156,4 @@ class MainWindow(flet.Row):
         data_list: list[list[dict]] = ShipRadarCSVReader.divide_collectors(data)
 
         self.page.session.set("filter", data_list)
-        self.page.go("/canvas")
+        self.page.go("/plot")

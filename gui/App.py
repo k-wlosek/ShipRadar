@@ -1,5 +1,5 @@
 import flet
-from gui.CanvasWindow import Plot
+from gui.PlotWindow import Plot
 from gui.MainWindow import MainWindow
 from gui.FilterWindow import FilterWindow
 from gui.Filters import NameFilter, DateTimeFilter, LocationFilter, ShipNoFilter, ShipTypeFilter, MoveStatusFilter, \
@@ -178,11 +178,11 @@ class ShipRadarApp(flet.UserControl):
                      self.filter_name]
                 )
             )
-        if troute.match("/canvas"):
+        if troute.match("/plot"):
             self.filter_name = Plot(self.page, self.page.session.get('filter'), "Plot")
             self.page.views.append(
                 flet.View(
-                    "/canvas",
+                    "/plot",
                     [flet.IconButton(
                         icon=flet.icons.HOME, tooltip="Go to main screen", on_click=lambda _: self.page.go("/")
                     ),

@@ -31,11 +31,13 @@ class Plot(flet.UserControl):
         self.__chart = PlotlyChart(self.__fig)
         self.layout = flet.Column(
             [
-                flet.Container(content=self.__chart, height=self.page.height*0.8),
+                flet.Container(content=self.__chart, height=self.page.height * 0.8),
                 flet.Row(
                     [
-                        flet.ElevatedButton(text="Open as interactive", icon=flet.icons.OPEN_IN_NEW, on_click=self.__show_fig),
-                        flet.ElevatedButton(text="Toggle lines", icon=flet.icons.LINE_STYLE, on_click=self.__toggle_lines)
+                        flet.ElevatedButton(text="Open as interactive", icon=flet.icons.OPEN_IN_NEW,
+                                            on_click=self.__show_fig),
+                        flet.ElevatedButton(text="Toggle lines", icon=flet.icons.LINE_STYLE,
+                                            on_click=self.__toggle_lines)
                     ]
                 )
             ]
@@ -70,16 +72,18 @@ class Plot(flet.UserControl):
             # Sort the data based on MovementDateTime
             sorted_data: pd.DataFrame = data_frame.sort_values(by='MovementDateTime', key=lambda x: pd.to_datetime(x))
             # Create a text column for the hovertext
-            sorted_data['text']: str = f"""<b>Ship name:</b> {sorted_data['ShipName']}<br>
-                                           <b>LRIMO number:</b> {sorted_data['LRIMOShipNo']}<br>
-                                           <b>Ship type:</b> {sorted_data['ShipType']}<br>
-                                           <b>Movement date:</b> {sorted_data['MovementDateTime']}<br>
-                                           <b>Move status:</b> {sorted_data['MoveStatus']}<br>
-                                           <b>Destination:</b> {sorted_data['Destination']}<br>
-                                           <b>ETA:</b> {sorted_data['ETA']}<br>
-                                           <b>Heading:</b> {sorted_data['Heading']}<br>
-                                           <b>Speed:</b> {sorted_data['Speed']}<br>
-                                           <b>Draught:</b> {sorted_data['Draught']}<br>"""
+            sorted_data['text']: str = sorted_data.apply(lambda row:
+                                                         f"<b>Ship name:</b> {row['ShipName']}<br>"
+                                                         f"<b>LRIMO number:</b> {row['LRIMOShipNo']}<br>"
+                                                         f"<b>Ship type:</b> {row['ShipType']}<br>"
+                                                         f"<b>Movement date:</b> {row['MovementDateTime']}<br>"
+                                                         f"<b>Move status:</b> {row['MoveStatus']}<br>"
+                                                         f"<b>Destination:</b> {row['Destination']}<br>"
+                                                         f"<b>ETA:</b> {row['ETA']}<br>"
+                                                         f"<b>Heading:</b> {row['Heading']}<br>"
+                                                         f"<b>Speed:</b> {row['Speed']}<br>"
+                                                         f"<b>Draught:</b> {row['Draught']}<br>", axis=1
+                                                         )
 
             # Create the scattergeo trace for points
             scatter_points = go.Scattergeo(
@@ -88,12 +92,12 @@ class Plot(flet.UserControl):
                 hovertext=sorted_data['text'],
                 mode='lines+markers' if self.show_lines else 'markers',
                 marker=dict(
-                    color=f'rgb({color[0]*255}, {color[1]*255}, {color[2]*255})',
+                    color=f'rgb({color[0] * 255}, {color[1] * 255}, {color[2] * 255})',
                     size=5
                 ),
                 line=dict(
                     width=1,
-                    color=f'rgb({color[0]*255}, {color[1]*255}, {color[2]*255})'
+                    color=f'rgb({color[0] * 255}, {color[1] * 255}, {color[2] * 255})'
                 ),
                 showlegend=True,
                 name=sorted_data['ShipName'][0]
