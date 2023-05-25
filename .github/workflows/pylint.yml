@@ -24,4 +24,4 @@ jobs:
         pip install pylint-exit
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py') || pylint-exit $?
+        pylint --rcfile=.pylintrc $(git ls-files '*.py') || pylint-exit $?

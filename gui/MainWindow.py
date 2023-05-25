@@ -1,11 +1,17 @@
+"""
+Contains the MainWindow class, which is the main window of the app.
+"""
+
 import flet
 import src.err
 from src.logger import ShipRadarLogger
 from src.reader import ShipRadarCSVReader
 
 
-# Main window, has a file picker, a button to open filters window and a go button which opens another window
 class MainWindow(flet.Row):
+    """
+    Main window of the app. Contains a file picker, a button to open filters window and a go button which opens plot
+    """
     def __init__(self, page: flet.Page, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.logger = ShipRadarLogger("MainWindow")
@@ -16,7 +22,7 @@ class MainWindow(flet.Row):
         self.last_picked_file = None
         self.__pick_files_dialog = flet.FilePicker(on_result=self.file_picker_result)
         self.page.overlay.append(self.__pick_files_dialog)
-        self.__picker_text = flet.Text(f"Select a CSV file to open")
+        self.__picker_text = flet.Text("Select a CSV file to open")
 
         self.filter = None
 
@@ -30,7 +36,9 @@ class MainWindow(flet.Row):
                                     leading=flet.Icon(flet.icons.ATTACH_FILE_OUTLINED),
                                     title=flet.Text("Select data file"),
                                     subtitle=self.__picker_text,
-                                    on_click=lambda _: self.__pick_files_dialog.pick_files(allowed_extensions=["csv"]),
+                                    on_click=lambda _: self.__pick_files_dialog.pick_files(
+                                        allowed_extensions=["csv"]
+                                    ),
                                 )
                             ),
                         ),
@@ -40,7 +48,9 @@ class MainWindow(flet.Row):
                                     leading=flet.Icon(flet.icons.FILTER_LIST_OUTLINED),
                                     title=flet.Text("Filters"),
                                     subtitle=flet.Text(
-                                        f"Selected filter {self.filter}" if self.filter else "Open filters window"
+                                        f"Selected filter {self.filter}"
+                                        if self.filter else
+                                        "Open filters window"
                                     ),
                                     on_click=lambda _: self.page.go("/filters")
                                 )
@@ -61,20 +71,33 @@ class MainWindow(flet.Row):
         self._active_view: flet.Control = self.controls_view
 
     @property
-    def active_view(self):
+    def active_view(self) -> flet.Control:
+        """
+        The active view of the main window.
+        :return: Active view
+        """
         return self._active_view
 
     @active_view.setter
-    def active_view(self, value: flet.Control):
+    def active_view(self, value: flet.Control) -> None:
+        """
+        Sets the active view of the main window.
+        :param value: view to set
+        :return: None
+        """
         self._active_view = value
         self.update()
         self.page.update()
 
-    def file_picker_result(self, e: flet.FilePickerResultEvent):
+    def file_picker_result(self, e: flet.FilePickerResultEvent) -> None:
+        """
+        Handles the result of the file picker.
+        :param e: File picker result event
+        :return: None
+        """
         self.logger.debug(e.files)
 
         file = e.files[0] if e.files else None
-
         if file:
             self.files.append(file)
 
@@ -83,12 +106,18 @@ class MainWindow(flet.Row):
         except IndexError:
             self.last_picked_file = None
         self.logger.info(self.last_picked_file)
-        self.__picker_text.value = f"Selected file: {self.last_picked_file.name}" if self.last_picked_file else \
+        self.__picker_text.value = f"Selected file: {self.last_picked_file.name}" \
+            if self.last_picked_file else \
             "Select a CSV file to open"
         self.page.update()
         self.controls_view.update()
 
-    def open_plot_window(self, e) -> None:
+    def open_plot_window(self, e: flet.TapEvent) -> None:
+        """
+        Opens the plot window.
+        :param e: Click event
+        :return: None
+        """
         # If app runs in browser, upload file
         if self.page.web:
             self.logger.debug("Running in browser")
@@ -96,14 +125,18 @@ class MainWindow(flet.Row):
             self.logger.debug("Checking file extension")
             if not self.last_picked_file.name.endswith("csv"):
                 self.logger.error("File is not CSV")
-                self.page.snack_bar = flet.SnackBar(content=flet.Text("Not a CSV file!"))
+                self.page.snack_bar = flet.SnackBar(
+                    content=flet.Text("Not a CSV file!")
+                )
                 self.page.snack_bar.open = True
                 self.page.update()
                 return
             self.logger.debug("Uploading file")
             self.__pick_files_dialog.upload([flet.FilePickerUploadFile(
                 self.last_picked_file.name,
-                upload_url=self.page.get_upload_url(self.last_picked_file.name, 120)  # 2 minutes should be enough
+                upload_url=self.page.get_upload_url(
+                    self.last_picked_file.name, 120  # 2 minutes should be enough
+                )
             )])
             self.last_picked_file.path = f"uploads/{self.last_picked_file.name}"
 
@@ -125,17 +158,19 @@ class MainWindow(flet.Row):
             return
 
         filter_types: list[str] = ['name_filter', 'datetime_filter', 'location_filter', 'ship_no',
-                                   'ship_type_filter', 'move_status_filter', 'heading_filter', 'draught_filter',
-                                   'speed_filter', 'destination_filter', 'eta_filter']
+                                   'ship_type_filter', 'move_status_filter', 'heading_filter',
+                                   'draught_filter', 'speed_filter', 'destination_filter', 'eta_filter']
         data_list: list[list[dict[str, str]]] = []
         for filter_type in filter_types:
-            filter = self.page.session.get(filter_type)
-            if filter:
+            filter_obj = self.page.session.get(filter_type)
+            if filter_obj:
                 try:
-                    data_list.append(data_file.parse(filter))
+                    data_list.append(data_file.parse(filter_obj))
                 except src.err.ShipRadarFilterError:
                     self.logger.error(f"No entries for {filter_type}")
-                    self.page.snack_bar = flet.SnackBar(content=flet.Text(f"No entries for selected filter(s)"))
+                    self.page.snack_bar = flet.SnackBar(
+                        content=flet.Text("No entries for selected filter(s)")
+                    )
                     self.page.snack_bar.open = True
                     self.page.update()
                     return
