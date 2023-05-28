@@ -1,0 +1,66 @@
+image:
+- Visual Studio 2019
+- macOS
+- Ubuntu
+
+skip_branch_with_pr: true
+stack: python 3.10
+
+environment:
+  GITHUB_TOKEN:
+    secure: aDrWul95byRnzYgAhQraLVAndYyQ12+fRrEce/o/eQ4mz5hSuSfCn1SNratdtAU5
+
+install:
+- pip install -r requirements.txt
+- pip install PyInstaller
+
+build_script:
+- flet pack main.py --name ShipRadar --product-name ShipRadar
+
+test: off
+
+deploy:
+  provider: GitHub
+  auth_token: $(GITHUB_TOKEN)
+  on:
+    branch: main
+    APPVEYOR_REPO_TAG: true
+
+# Windows
+for:
+-
+  matrix:
+    only:
+    - image: Visual Studio 2019
+
+  after_build:
+  - 7z a ShipRadar-windows.zip %CD%\dist\*.exe
+
+  artifacts:
+  - path: ShipRadar-windows.zip
+
+
+# macOS
+-
+  matrix:
+    only:
+    - image: macOS
+
+  after_build:
+  - tar -czvf ShipRadar-macos.tar.gz -C dist ShipRadar.app
+
+  artifacts:
+  - path: ShipRadar-macos.tar.gz
+
+
+# Linux
+-
+  matrix:
+    only:
+    - image: Ubuntu
+
+  after_build:
+  - tar -czvf ShipRadar-linux.tar.gz -C dist ShipRadar
+
+  artifacts:
+  - path: ShipRadar-linux.tar.gz
