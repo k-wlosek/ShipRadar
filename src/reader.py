@@ -98,8 +98,19 @@ class ShipRadarCSVReader:
         try:
             with open(self.file, 'r', encoding='utf-8') as csvfile:
                 csvreader = csv.DictReader(csvfile, delimiter=';')
+                for ind, row in enumerate(csvreader):
 
-                for row in csvreader:
+                    if ind == 0:  # Second verification of header
+                        # Header validation
+                        self.logger.debug("Header validation started")
+                        for key in row.keys():
+                            if key not in ["LRIMOShipNo", "ShipName", "ShipType", "MovementDateTime",
+                                           "Longitude", "Latitude", "MoveStatus", "Heading", "Draught",
+                                           "Speed", "Destination", "ETA"]:
+                                self.logger.debug("Header validation failed.\nImportError raised.")
+                                raise err.ShipRadarImportError('Wrong header in CSV file')
+                        self.logger.debug("Header validation passed")
+
                     # Filtering
                     match filter_obj.type:
                         case 'ship_no':
