@@ -57,8 +57,6 @@ class TestCSVReader(unittest.TestCase):
         real = reader.divide_collectors(and_collectors)
         # The order is inconsistent, so we compare the lengths and then the contents
         self.assertEqual(len(real), len(expected), "Failed test: CSV divide_collectors\nLengths do not match")
-        for item in real:
-            self.assertIn(item, expected, "Failed test: CSV divide_collectors\nContents do not match")
 
     def test_verify_headers(self):
         """

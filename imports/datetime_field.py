@@ -1,12 +1,15 @@
 """
 https://github.com/flet-dev/examples/tree/main/python/community/datetime_field
-Edited to work with ShipRadar
+Can't import, so I copied it here.
+Original Author: https://github.com/qraxis
+Added seconds field, fixed some lint errors, and added some type hints. ~kw
+
+A datetime field for flet.
 """
 
 import calendar
 import datetime as dt
 from typing import Any, Callable, Iterable, Optional, Union
-
 import flet as ft
 from beartype.typing import List
 from flet_core.control import Control, OptionalNumber
@@ -24,7 +27,10 @@ from flet_core.types import (
 
 
 class DatetimeField(ft.Row):
-    date_controls_dict = dict()
+    """
+    A datetime field for flet.
+    """
+    date_controls_dict = {}
     months_ = list(calendar.month_name)[1:]
     dt_format = "%Y,%B,%d,%H,%M,%S"
     options = ["_years", "_months", "_days", "_hours", "_minutes", "_seconds"]
@@ -132,7 +138,7 @@ class DatetimeField(ft.Row):
 
     def _days(self, year: int = dt.date.today().year, month: int = 1) -> None:
         """
-        Get month days by choosen month and year.
+        Get month days by chosen month and year.
         """
         day = calendar.monthrange(year, month)[1]
         days = range(1, day + 1)
@@ -170,7 +176,7 @@ class DatetimeField(ft.Row):
             hint_text="Seconds",
         )
 
-    def _on_change(self, e) -> None:
+    def _on_change(self, e: ft.TapEvent) -> None:
         """
         The method then checks if both the year and month dropdown menus
         have valid values, and if so, it calls the days() method to update
@@ -180,7 +186,7 @@ class DatetimeField(ft.Row):
 
         year = self.date_controls_dict["years"].value
         month = self.date_controls_dict["months"].value
-        valid = year != "" and year != None and month != "" and month != None
+        valid = year != "" and year is not None and month != "" and month is not None
 
         if valid:
             year, month = int(year), self.months_.index(month) + 1
@@ -194,7 +200,7 @@ class DatetimeField(ft.Row):
             )
             self.page.update()
 
-    def _on_change_wrapper(self, e):
+    def _on_change_wrapper(self, e: ft.ScaleUpdateEvent) -> None:
         self.on_change(self.value)
 
     def _dropdown(self, name: str, elements: Iterable, **kwargs) -> None:
@@ -212,21 +218,30 @@ class DatetimeField(ft.Row):
 
     @property
     def value(self) -> Union[list, dt.datetime]:
+        """
+        Get all controls values.
+        :return: list of controls values or datetime object
+        """
         controls = list(map(lambda x: x.value, self.controls))
         if None not in controls:
             str_dt = ",".join(controls)
             try:
                 return dt.datetime.strptime(str_dt, self.dt_format)
-            except:
+            except ValueError:
                 return controls
         return controls
 
     @value.setter
     def value(self, values: Union[list, dict]) -> None:
+        """
+        Set all controls values.
+        :param values: list of controls values or dict
+        :return: None
+        """
         if isinstance(values, list):
             assert len(values) == len(
                 self.controls
-            ), f"elements lenght not matching : {len(values)} != {self.controls}"
+            ), f"elements length not matching : {len(values)} != {self.controls}"
             for control, value in zip(self.controls, values):
                 control.value = value
 

@@ -2,9 +2,9 @@
 Contains the filters for the GUI
 """
 
-from typing import Union
 from datetime import datetime
 import flet
+from beartype.typing import Union
 from imports.datetime_field import DatetimeField
 from src.logger import ShipRadarLogger
 from src.reader import ShipRadarFilter

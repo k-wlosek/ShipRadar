@@ -22,9 +22,10 @@ class ShipRadarApp(flet.UserControl):
         self.layout = None
         self.page = page
         self.page.title = "ShipRadar"
+        self.page.session.set('filter', None)
         self.page.update()
 
-    def build(self):
+    def build(self) -> flet.Control:
         """
         Builds the main application.
         :return: The main application view
@@ -36,7 +37,7 @@ class ShipRadarApp(flet.UserControl):
         )
         return self.layout.active_view
 
-    def route_change(self, e: flet.RouteChangeEvent):
+    def route_change(self, e: flet.RouteChangeEvent) -> None:
         """
         Handles route changes.
         :param e: Route change event
@@ -223,10 +224,9 @@ class ShipRadarApp(flet.UserControl):
                      self.plot]
                 )
             )
-        self.page.session.set('filter', None)
         self.page.update()
 
-    def view_pop(self, e: flet.ViewPopEvent):
+    def view_pop(self, e: flet.ViewPopEvent) -> None:
         """
         Go back to the previous view
         :param e: Pop event

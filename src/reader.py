@@ -1,16 +1,24 @@
-import src.err as err
-import src.logger as logger
+"""
+This module contains classes for reading CSV files and filtering them.
+"""
+
 import csv
 from datetime import datetime
+from beartype.typing import Union
+from src import err
+from src import logger
 
 
 class ShipRadarFilter:
+    """
+    Class for filtering CSV files.
+    """
     type = None
     filter = None
 
     def __init__(self, type: str, *args):
         self.logger = logger.ShipRadarLogger("ShipRadarFilterLogger")
-        self.filter = None
+        self.filter: Union[None, int, float, datetime, tuple] = None
         self.type: str = type
         self.additional_info: tuple = args
         self.__parse_type()
@@ -57,22 +65,25 @@ class ShipRadarFilter:
                 except ValueError as exc:
                     self.logger.debug(f"Date filter exception: {exc}\nFilterError raised.")
                     raise err.ShipRadarFilterError('Wrong time format')
-            case 'coords':  # TODO Split into 2 filters, one for longitude and one for latitude OR NOT?
+            case 'coords':
                 # longitude1, latitude1, logitude2, latitude2
                 self.filter: tuple[float, float, float, float] = self.additional_info[0], \
                     self.additional_info[1], self.additional_info[2], self.additional_info[3]
                 self.logger.debug(f"Filter set for {self.type} with filter {self.filter}")
             case _:
-                self.logger.debug(f"Filter type does not exist.\nFilterError raised.")
+                self.logger.debug("Filter type does not exist.\nFilterError raised.")
                 raise err.ShipRadarFilterError('Filter type does not exist')
 
 
 class ShipRadarCSVReader:
+    """
+    Class for reading CSV files.
+    """
     def __init__(self, file: str):
         self.logger = logger.ShipRadarLogger("CSVReaderLogger")
-        self.file = file
+        self.file: str = file
 
-    def parse(self, filter_obj: ShipRadarFilter):
+    def parse(self, filter_obj: ShipRadarFilter) -> list[dict[str, str]]:
         """
         Parses CSV file with given filter
         :param filter_obj: ShipRadarFilter object
@@ -82,109 +93,88 @@ class ShipRadarCSVReader:
         collector = []
         if (filter_obj.type is None) or (filter_obj.filter is None):
             # Check if Filter's fields are filled
-            self.logger.debug(f"Filter has not been initialized.\nFilterError raised.")
+            self.logger.debug("Filter has not been initialized.\nFilterError raised.")
             raise err.ShipRadarFilterError('Filter not initialized')
         try:
-            with open(self.file, 'r') as csvfile:
+            with open(self.file, 'r', encoding='utf-8') as csvfile:
                 csvreader = csv.DictReader(csvfile, delimiter=';')
-                for ind, row in enumerate(csvreader):
 
-                    if ind == 0:
-                        # Header validation
-                        self.logger.debug(f"Header validation started")
-                        for key in row.keys():
-                            if key not in ["LRIMOShipNo", "ShipName", "ShipType", "MovementDateTime",
-                                           "Longitude", "Latitude", "MoveStatus", "Heading", "Draught",
-                                           "Speed", "Destination", "ETA"]:
-                                self.logger.debug(f"Header validation failed.\nImportError raised.")
-                                raise err.ShipRadarImportError('Wrong header in CSV file')
-                        self.logger.debug(f"Header validation passed")
-
+                for row in csvreader:
                     # Filtering
                     match filter_obj.type:
                         case 'ship_no':
                             if int(row["LRIMOShipNo"]) != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'ship_type':
                             if row["ShipType"] != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'move_status':
                             if row["MoveStatus"] != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'heading':
                             if int(row["Heading"]) != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'draught':
                             # Ensure that the decimal separator is a dot
                             if float(row["Draught"].replace(",", ".")) != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'speed':
                             # Ensure that the decimal separator is a dot
                             if float(row["Speed"].replace(",", ".")) != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'destination':
                             if row["Destination"] != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'eta':
                             if datetime.fromisoformat(row["ETA"]) != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'ship_name':
                             if row["ShipName"] != filter_obj.filter:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'date':
                             # Filter is a tuple of 2 datetime objects, from and till
                             row_date = datetime.fromisoformat(row["MovementDateTime"])
-                            if not (filter_obj.filter[0] <= row_date <= filter_obj.filter[1]):
+                            if not filter_obj.filter[0] <= row_date <= filter_obj.filter[1]:
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case 'coords':
                             # Filter is a tuple of 4 floats, longitude1, latitude1, longitude2, latitude2
@@ -193,20 +183,19 @@ class ShipRadarCSVReader:
                                     or (filter_obj.filter[2] <= x <= filter_obj.filter[0]))
                                     and
                                     ((filter_obj.filter[1] <= y <= filter_obj.filter[3])
-                                     or (filter_obj.filter[3] <= y <= filter_obj.filter[1]))):
+                                    or (filter_obj.filter[3] <= y <= filter_obj.filter[1]))):
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
-                            else:
-                                self.logger.verbose(f"Row {row} ADDED")
-                                collector.append(row)
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
 
                         case _:
-                            self.logger.debug(f"Unknown error occurred")
+                            self.logger.debug("Unknown error occurred")
                             raise err.ShipRadarBaseException('Unknown error')
 
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             self.logger.debug(f"File {self.file} not found.\nImportError raised.")
-            raise err.ShipRadarImportError(f"No file {self.file}")
+            raise err.ShipRadarImportError(f"No file {self.file}") from exc
 
         if not collector:
             self.logger.debug(f"Collector {collector} is empty: No ships for given filter {filter_obj}")
@@ -253,7 +242,12 @@ class ShipRadarCSVReader:
 
     @staticmethod
     def verify_headers(filepath: str) -> bool:
-        with open(filepath) as file:
+        """
+        Verify if the headers in the file are correct
+        :param filepath: Path to the CSV file
+        :return: True if headers are correct, False otherwise
+        """
+        with open(filepath, encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=";")
             header = next(reader)
             if set(header) != {"LRIMOShipNo", "ShipName", "ShipType", "MovementDateTime", "Latitude", "Longitude",

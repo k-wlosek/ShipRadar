@@ -2,12 +2,13 @@
 Contains the Plot class, which is used to create a plot window
 """
 import itertools
-from typing import Union
 import flet
 import pandas as pd
 import plotly.graph_objects as go
 import distinctipy
+from beartype.typing import Union
 from flet.plotly_chart import PlotlyChart
+from src.logger import ShipRadarLogger
 
 
 class Plot(flet.UserControl):
@@ -21,13 +22,18 @@ class Plot(flet.UserControl):
         self.__fig: Union[None, go.Figure] = None
         self.page = page
         self.page.on_resize = self.on_resize
+        self.logger = ShipRadarLogger("Plot")
+        self.logger.debug("Initializing Plot")
         self.data = data
         self.title = title
 
         self.show_lines = True
         self.__block = False
 
-        self.colors: list[tuple[float, float, float]] = distinctipy.get_colors(len(self.data))
+        self.colors: list[tuple[float, float, float]] = distinctipy.get_colors(len(self.data)) \
+            if self.data \
+            else []
+        self.logger.verbose(f"Colors: {self.colors}")
         self.page.update()
 
     def on_resize(self, e: flet.ScaleUpdateEvent) -> None:
@@ -37,14 +43,42 @@ class Plot(flet.UserControl):
         :return: None
         """
         self.__chart.figure = self.__fig
+        self.logger.debug("Resized")
         self.page.update()
         self.layout.update()
 
-    def build(self):
+    def build(self) -> flet.Control:
         """
         Build the plot window
         :return: The layout of the plot window
         """
+        if not self.data:
+            # There is no data, probably user has routed to the plot window without selecting anything
+            self.layout = flet.Column(
+                [
+                    flet.Container(
+                        content=flet.Text(
+                            "No data selected, navigate to the root page (/), "
+                            "select your data, select filters and click Go button",
+                            size=50,
+                            color=flet.colors.RED,
+                            text_align=flet.TextAlign.CENTER
+                        )
+                    ),
+                    flet.Container(
+                        content=flet.ElevatedButton(
+                            icon=flet.icons.HOME,
+                            text="Go to main screen",
+                            width=self.page.width * 0.5,
+                            height=self.page.height * 0.1,
+                            scale=1.5,
+                            on_click=lambda _: self.page.go("/")
+                        ), alignment=flet.alignment.center, width=self.page.width
+                    )
+                ],
+                alignment=flet.alignment.center
+            )
+            return self.layout
         self.__initialize_chart()
 
         self.__chart = PlotlyChart(self.__fig)
@@ -68,6 +102,7 @@ class Plot(flet.UserControl):
             ]
         )
 
+        self.logger.debug("Built layout")
         return self.layout
 
     def __initialize_chart(self) -> None:
@@ -76,6 +111,7 @@ class Plot(flet.UserControl):
         :return: None
         """
         self.__block = True
+        self.logger.debug("Initializing chart")
 
         all_data_list: list[dict] = list(itertools.chain(*self.data))
 
@@ -172,6 +208,7 @@ class Plot(flet.UserControl):
         )
 
         self.__block = False
+        self.logger.debug("Initialized chart, unblocking")
 
     def __toggle_lines(self, e: flet.TapEvent) -> None:
         """
@@ -184,6 +221,7 @@ class Plot(flet.UserControl):
             self.page.snack_bar.open = True
             self.page.update()
             return None
+        self.logger.debug("Toggling lines, blocking")
         self.show_lines = False if self.show_lines else True  # Toggle the show_lines variable
         self.__initialize_chart()
 
@@ -191,6 +229,7 @@ class Plot(flet.UserControl):
         self.__chart.figure = self.__fig
         self.page.update()
         self.layout.update()
+        self.logger.debug("Toggled lines, updating GUI")
         return None
 
     def __show_fig(self, e: flet.TapEvent) -> None:
@@ -199,4 +238,5 @@ class Plot(flet.UserControl):
         :param e: Click event
         :return: None
         """
+        self.logger.debug("Showing figure in new window")
         self.__fig.show()
