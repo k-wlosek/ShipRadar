@@ -2,6 +2,8 @@
 Contains the MainWindow class, which is the main window of the app.
 """
 
+import os.path
+import time
 import flet
 import src.err
 from src.logger import ShipRadarLogger
@@ -131,14 +133,32 @@ class MainWindow(flet.Row):
                 self.page.snack_bar.open = True
                 self.page.update()
                 return
-            self.logger.debug("Uploading file")
-            self.__pick_files_dialog.upload([flet.FilePickerUploadFile(
-                self.last_picked_file.name,
-                upload_url=self.page.get_upload_url(
-                    self.last_picked_file.name, 120  # 2 minutes should be enough
-                )
-            )])
             self.last_picked_file.path = f"uploads/{self.last_picked_file.name}"
+
+            # Upload file
+            if not os.path.exists(self.last_picked_file.path):
+                self.logger.debug("Uploading file")
+                self.page.snack_bar = flet.SnackBar(
+                    content=flet.Text("Uploading file...")
+                )
+                self.page.snack_bar.open = True
+                self.page.update()
+                self.__pick_files_dialog.upload([flet.FilePickerUploadFile(
+                    self.last_picked_file.name,
+                    upload_url=self.page.get_upload_url(
+                        self.last_picked_file.name, 120  # 2 minutes should be enough
+                    )
+                )])
+                while not os.path.exists(self.last_picked_file.path):
+                    time.sleep(1)  # Wait for file to upload
+                self.page.snack_bar = flet.SnackBar(
+                    content=flet.Text("File uploaded!")
+                )
+                self.page.snack_bar.open = True
+                self.page.update()
+                self.logger.debug("File uploaded")
+            else:
+                self.logger.debug("File already uploaded")
 
         self.logger.debug("Opening plot window")
         try:
