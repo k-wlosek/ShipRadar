@@ -7,7 +7,7 @@ import time
 import flet
 import src.err
 from src.logger import ShipRadarLogger
-from src.reader import ShipRadarCSVReader
+from src.reader import ShipRadarCSVReader, ShipRadarFilter
 
 
 class MainWindow(flet.Row):
@@ -177,7 +177,7 @@ class MainWindow(flet.Row):
             self.page.update()
             return
 
-        filter_types: list[str] = ['name_filter', 'datetime_filter', 'location_filter', 'ship_no',
+        filter_types: list[str] = ['name_filter', 'datetime_filter', 'location_filter', 'ship_no_filter',
                                    'ship_type_filter', 'move_status_filter', 'heading_filter',
                                    'draught_filter', 'speed_filter', 'destination_filter', 'eta_filter']
         data_list: list[list[dict[str, str]]] = []
@@ -194,14 +194,18 @@ class MainWindow(flet.Row):
                     self.page.snack_bar.open = True
                     self.page.update()
                     return
-        try:
-            data: list[dict] = ShipRadarCSVReader.and_collectors(data_list)
-        except IndexError:
-            self.logger.error("No filters selected")
-            self.page.snack_bar = flet.SnackBar(content=flet.Text("No filters selected!"))
-            self.page.snack_bar.open = True
-            self.page.update()
-            return
+        if not data_list:
+            null_filter = ShipRadarFilter('null')
+            data = data_file.parse(null_filter)
+        else:
+            try:
+                data: list[dict] = ShipRadarCSVReader.and_collectors(data_list)
+            except IndexError:
+                self.logger.error("Error while filtering data")
+                self.page.snack_bar = flet.SnackBar(content=flet.Text("Error while filtering data!"))
+                self.page.snack_bar.open = True
+                self.page.update()
+                return
         if not data:
             self.logger.error("No data satisfying all filters")
             self.page.snack_bar = flet.SnackBar(content=flet.Text("No data satisfying all filters!"))

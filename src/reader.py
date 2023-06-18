@@ -70,6 +70,9 @@ class ShipRadarFilter:
                 self.filter: tuple[float, float, float, float] = self.additional_info[0], \
                     self.additional_info[1], self.additional_info[2], self.additional_info[3]
                 self.logger.debug(f"Filter set for {self.type} with filter {self.filter}")
+            case 'null':
+                self.logger.debug("Null filter set")
+                self.filter: int = 0
             case _:
                 self.logger.debug("Filter type does not exist.\nFilterError raised.")
                 raise err.ShipRadarFilterError('Filter type does not exist')
@@ -197,6 +200,10 @@ class ShipRadarCSVReader:
                                     or (filter_obj.filter[3] <= y <= filter_obj.filter[1]))):
                                 self.logger.verbose(f"Row {row} NOT ADDED")
                                 continue
+                            self.logger.verbose(f"Row {row} ADDED")
+                            collector.append(row)
+
+                        case 'null':
                             self.logger.verbose(f"Row {row} ADDED")
                             collector.append(row)
 
