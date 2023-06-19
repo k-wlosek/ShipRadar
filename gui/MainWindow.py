@@ -195,8 +195,11 @@ class MainWindow(flet.Row):
                     self.page.update()
                     return
         if not data_list:
-            null_filter = ShipRadarFilter('null')
-            data = data_file.parse(null_filter)
+            self.logger.error("No filters selected")
+            self.page.snack_bar = flet.SnackBar(content=flet.Text("No filters selected!"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return
         else:
             try:
                 data: list[dict] = ShipRadarCSVReader.and_collectors(data_list)
