@@ -24,13 +24,17 @@ Application for plotting ships' paths using CSV file with data.
 
 ### Screenshots
 Main Window:
+
 ![MainWindow.png](media/MainWindow.png)
 Filter types:
+
 ![Filters1.png](media/Filters1.png)
 ![Filters2.png](media/Filters2.png)
 Selected filter:
+
 ![SelectedFilter.png](media/SelectedFilter.png)
 Resulting plot:
+
 ![Plot.png](media/Plot.png)
 
 ### CSV file format
